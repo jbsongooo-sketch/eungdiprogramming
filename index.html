@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b2e">
+  <title>모터로그 — 차량 정비 관리</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="config.js"></script>
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <div class="auth-screen" id="authScreen">
+    <section class="auth-card">
+      <a class="brand" href="#"><span class="brand-mark">M</span><span>모터로그<span class="brand-dot">.</span></span></a>
+      <p class="eyebrow">YOUR CAR, IN GOOD HANDS</p>
+      <h1>차량 관리의<br>새로운 기준</h1>
+      <p class="auth-copy">정비 일정을 놓치지 않도록<br>모터로그가 챙겨드릴게요.</p>
+      <form id="authForm">
+        <label for="authEmail">이메일</label><input id="authEmail" type="email" autocomplete="email" placeholder="name@example.com" required>
+        <label for="authPassword">비밀번호</label><input id="authPassword" type="password" autocomplete="current-password" minlength="6" placeholder="6자 이상 입력" required>
+        <button class="button primary auth-submit" id="authSubmit" type="submit">로그인</button>
+      </form>
+      <p class="auth-switch"><span id="authSwitchText">아직 계정이 없으신가요?</span> <button id="authToggle" class="text-button" type="button">회원가입</button></p>
+      <p class="auth-message" id="authMessage" role="status"></p>
+      <p class="setup-hint" id="setupHint" hidden>Supabase 연결 정보가 필요합니다. <code>script.js</code>의 설정을 확인해 주세요.</p>
+    </section>
+    <aside class="auth-art"><div class="art-glow"></div><div class="art-copy"><span>MAINTENANCE, MADE SIMPLE</span><h2>다음 여정도<br>안심하고 달리세요.</h2><p>정비 기록부터 다음 점검까지<br>한눈에 관리하는 나만의 차고.</p></div><div class="art-car"><span class="car-line"></span><span class="wheel wheel-a"></span><span class="wheel wheel-b"></span></div><div class="art-caption">DRIVE WITH CONFIDENCE <span>01 / 03</span></div></aside>
+  </div>
+
+  <div class="app-shell" id="appShell" hidden>
+    <aside class="sidebar">
+      <a class="brand" href="#"><span class="brand-mark">M</span><span>모터로그<span class="brand-dot">.</span></span></a>
+      <div class="side-label">WORKSPACE</div>
+      <button class="nav-item active" data-view="dashboard"><span class="nav-icon">▦</span> 대시보드</button>
+      <button class="nav-item" data-view="history"><span class="nav-icon">◷</span> 정비 이력</button>
+      <div class="side-divider"></div>
+      <div class="side-label garage-label">내 차고 <button id="addCarSmall" aria-label="자동차 추가">＋</button></div>
+      <div id="sidebarCars" class="sidebar-cars"></div>
+      <div class="sidebar-bottom"><div class="user-avatar" id="userAvatar">M</div><div class="user-info"><strong id="userEmail">사용자</strong><span>PERSONAL ACCOUNT</span></div><button class="icon-button logout-button" id="logoutButton" title="로그아웃" aria-label="로그아웃">↗</button></div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar"><div class="breadcrumb">WORKSPACE <span>/</span> <strong id="breadcrumbView">대시보드</strong></div><div class="top-actions"><span class="today-label" id="todayLabel"></span><button class="button primary compact" id="addRecordTop">＋ 정비 기록</button></div></header>
+      <div class="page-wrap">
+        <section id="dashboardView">
+          <div class="page-heading"><div><p class="eyebrow">YOUR CAR IS READY</p><h1>좋은 하루예요<span class="heading-period">.</span></h1><p class="muted">오늘도 안전한 주행을 위해 차량 상태를 확인해 보세요.</p></div><button class="button outline" id="addCarButton">＋ 자동차 등록</button></div>
+          <div class="stats-grid"><article class="stat-card"><div class="stat-top"><span>등록 차량</span><span class="stat-icon blue">⌁</span></div><strong id="statCars">0</strong><small>내 차고에 등록된 차량</small></article><article class="stat-card"><div class="stat-top"><span>정비 예정</span><span class="stat-icon amber">◷</span></div><strong id="statDue">0</strong><small>30일 이내 점검 예정</small></article><article class="stat-card"><div class="stat-top"><span>기한 초과</span><span class="stat-icon red">!</span></div><strong id="statOverdue">0</strong><small>확인이 필요한 항목</small></article><article class="stat-card"><div class="stat-top"><span>총 정비 기록</span><span class="stat-icon green">✓</span></div><strong id="statRecords">0</strong><small>지금까지 기록한 정비</small></article></div>
+          <div class="section-heading"><div><h2>내 자동차</h2><p class="muted">차량별 정비 상태를 확인하세요.</p></div><button class="text-button" id="addCarInline">＋ 차량 추가</button></div>
+          <div id="carsGrid" class="cars-grid"></div>
+          <div class="section-heading upcoming-heading"><div><h2>다가오는 정비</h2><p class="muted">놓치지 않도록 미리 준비하세요.</p></div><button class="text-button" data-go-history>전체 이력 보기 →</button></div>
+          <div class="table-card"><div class="table-scroll"><table><thead><tr><th>정비 항목</th><th>차량</th><th>다음 예정일</th><th>남은 기간</th><th>상태</th><th></th></tr></thead><tbody id="upcomingRows"></tbody></table></div><div class="empty-state" id="upcomingEmpty" hidden>아직 등록된 정비 일정이 없습니다.</div></div>
+        </section>
+        <section id="historyView" hidden>
+          <div class="page-heading"><div><p class="eyebrow">SERVICE HISTORY</p><h1>정비 이력<span class="heading-period">.</span></h1><p class="muted">모든 차량의 정비 일정과 기록을 관리하세요.</p></div><button class="button primary" id="addRecordButton">＋ 정비 기록 추가</button></div>
+          <div class="filter-bar"><div class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="정비 항목 또는 차량 검색"></div><select id="carFilter" aria-label="차량 필터"><option value="">모든 차량</option></select><select id="statusFilter" aria-label="상태 필터"><option value="">모든 상태</option><option value="overdue">기한 초과</option><option value="soon">예정</option><option value="ok">여유</option></select></div>
+          <div class="table-card history-table"><div class="table-scroll"><table><thead><tr><th>정비 항목</th><th>차량</th><th>마지막 정비</th><th>주기</th><th>다음 예정일</th><th>남은 기간</th><th></th></tr></thead><tbody id="historyRows"></tbody></table></div><div class="empty-state" id="historyEmpty" hidden>검색 결과가 없습니다.</div></div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <dialog id="carDialog" class="modal"><form id="carForm" method="dialog"><div class="modal-head"><div><p class="eyebrow">YOUR GARAGE</p><h2 id="carDialogTitle">자동차 등록</h2></div><button class="icon-button close-dialog" type="button" aria-label="닫기">×</button></div><input type="hidden" id="carId"><label for="carName">차량 이름 *</label><input id="carName" maxlength="80" placeholder="예: 출퇴근용 세단" required><div class="form-row"><div><label for="carMake">제조사</label><input id="carMake" maxlength="60" placeholder="현대"></div><div><label for="carModel">모델</label><input id="carModel" maxlength="60" placeholder="쏘나타"></div></div><div class="form-row"><div><label for="carYear">연식</label><input id="carYear" type="number" min="1950" max="2100" placeholder="2024"></div><div><label for="carPlate">차량 번호</label><input id="carPlate" maxlength="30" placeholder="12가 3456"></div></div><div class="modal-actions"><button class="button outline cancel-dialog" type="button">취소</button><button class="button primary" type="submit">저장</button></div></form></dialog>
+  <dialog id="recordDialog" class="modal"><form id="recordForm" method="dialog"><div class="modal-head"><div><p class="eyebrow">MAINTENANCE LOG</p><h2 id="recordDialogTitle">정비 기록 추가</h2></div><button class="icon-button close-dialog" type="button" aria-label="닫기">×</button></div><input type="hidden" id="recordId"><label for="recordCar">자동차 *</label><select id="recordCar" required></select><label for="recordName">정비 항목 *</label><input id="recordName" maxlength="100" list="maintenanceOptions" placeholder="예: 엔진오일 교환" required><datalist id="maintenanceOptions"><option value="엔진오일 교환"><option value="타이어 점검"><option value="배터리 점검"><option value="브레이크 패드 점검"><option value="에어컨 필터 교체"><option value="에어 필터 교체"><option value="냉각수 점검"><option value="변속기 오일 교환"></datalist><div class="form-row"><div><label for="lastService">마지막 정비 날짜 *</label><input id="lastService" type="date" required></div><div><label for="intervalDays">정비 주기 (일) *</label><input id="intervalDays" type="number" min="1" max="36500" placeholder="180" required></div></div><label for="recordNotes">메모</label><textarea id="recordNotes" rows="3" maxlength="1000" placeholder="정비소, 주행거리 등"></textarea><div class="modal-actions"><button class="button outline cancel-dialog" type="button">취소</button><button class="button primary" type="submit">저장</button></div></form></dialog>
+</body>
+</html>
